@@ -2,19 +2,12 @@ const glob = require("glob");
 const fs = require("fs");
 const rimraf = require("rimraf");
 const transformFileSync = require("@babel/core").transformFileSync;
+const config = require("./config")();
 
-const config = {
-  importStatement: "import { I18N } from '@common/I18N';",
-  callStatement: "I18N.get",
-  targetDir: "i18n-messages",
-  exclude: [],
-  callExpression: false,
-  autoZhKey: true,
-  path: "src",
-};
 const textArr = [];
 const zhCH = new Map();
 const templateLiteralArr = [];
+console.log(config, "config");
 
 const targetDir = config.targetDir;
 const exclude = config.exclude;

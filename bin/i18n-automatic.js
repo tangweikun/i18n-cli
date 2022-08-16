@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const program = require("commander");
-const scan = require("./react");
+const scan = require("./scan");
 const pick = require("./pick");
 const exportJson = require("./exportJson");
 

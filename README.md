@@ -19,3 +19,19 @@ i18n-automatic pick
 ```bash
 i18n-automatic exportJson
 ```
+
+## config
+
+如果当前目录下存在 `i18n.config.json` 则会优先读取其中的配置
+
+```json
+{
+  "importStatement": "import { I18N } from '@common/I18N';",
+  "callStatement": "I18N.get",
+  "targetDir": "i18n-messages",
+  "exclude": [],
+  "callExpression": false,
+  "path": "src",
+  "autoZhKey": true
+}
+```

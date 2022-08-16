@@ -1,15 +1,7 @@
 const fs = require("fs");
 const program = require("commander");
 const path = require("path");
-const config = {
-  importStatement: "import { I18N } from '@common/I18N';",
-  callStatement: "I18N.get",
-  targetDir: "i18n-messages",
-  exclude: [],
-  callExpression: false,
-  autoZhKey: true,
-  path: "src",
-};
+const config = require("./config")();
 
 program.parse(process.argv);
 
