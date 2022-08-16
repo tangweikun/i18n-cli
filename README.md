@@ -35,3 +35,14 @@ i18n-automatic exportJson
   "autoZhKey": true
 }
 ```
+
+## babel
+
+如果当前目录下存在 `i18n.babel.json` 则会优先读取其中的配置
+
+TODO:
+
+## TODO
+
+- [ ] babel options support config
+- [ ] 提示信息使用 chalk

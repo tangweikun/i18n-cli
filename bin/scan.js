@@ -3,40 +3,17 @@ const fs = require("fs");
 const rimraf = require("rimraf");
 const transformFileSync = require("@babel/core").transformFileSync;
 const config = require("./config")();
+const babelConfig = require("./babelConfig")();
+babelConfig.plugins.push(scan);
 
 const textArr = [];
 const zhCH = new Map();
 const templateLiteralArr = [];
-console.log(config, "config");
 
 const targetDir = config.targetDir;
 const exclude = config.exclude;
 const callExpression = config.callExpression;
 const path = config.path;
-const babelOptions = {
-  presets: [
-    ["@babel/preset-typescript", { allExtensions: true, isTSX: true }],
-    [
-      "@babel/env",
-      {
-        targets: "chrome > 58",
-        modules: false,
-        useBuiltIns: false,
-        loose: false,
-      },
-    ],
-    "@babel/preset-react",
-  ],
-  plugins: [
-    "@babel/plugin-transform-typescript",
-    "@babel/plugin-syntax-typescript",
-    ["@babel/plugin-proposal-decorators", { legacy: true }],
-    "@babel/plugin-proposal-class-properties",
-    "@babel/plugin-proposal-object-rest-spread",
-    "@babel/plugin-syntax-dynamic-import",
-    scan,
-  ],
-};
 
 function run() {
   // Step1: 遍历所有符合条件的文件
@@ -45,14 +22,14 @@ function run() {
     {
       ignore: exclude.map((pattern) => `${path}/${pattern}`),
     },
-    (error, files) => {
+    (_, files) => {
       files.forEach((filename) => {
         // 过滤 node_modules
         if (filename.includes("node_modules")) {
           return;
         }
 
-        transformFileSync(filename, babelOptions);
+        transformFileSync(filename, babelConfig);
       });
 
       rimraf.sync(targetDir);
