@@ -6,7 +6,7 @@ const config = require("./config")();
 const babelConfig = require("./babelConfig")();
 babelConfig.plugins.push(scan);
 
-const textArr = [];
+const sourceTextList = [];
 const zhCH = new Map();
 const templateLiteralArr = [];
 
@@ -32,15 +32,19 @@ function run() {
         transformFileSync(filename, babelConfig);
       });
 
-      rimraf.sync(targetDir);
       // 创建文件夹
+      rimraf.sync(targetDir);
       fs.mkdirSync(targetDir);
-      fs.appendFile(`${targetDir}/sourcemap.txt`, textArr.map((item, i) => `${item}#${i}\n`).join(""), function (err) {
-        if (err) {
-          return console.error(err);
+      fs.appendFile(
+        `${targetDir}/sourcemap.txt`,
+        sourceTextList.map((item, i) => `${item}#${i}\n`).join(""),
+        function (err) {
+          if (err) {
+            return console.error(err);
+          }
+          console.log(`----共扫描中文文案 ${sourceTextList.length} 条----`);
         }
-        console.log(`----共扫描中文文案 ${textArr.length} 条----`);
-      });
+      );
 
       fs.appendFile(`${targetDir}/zh-CH.json`, `${JSON.stringify([...zhCH.values()], null, "\t")}`, function (err) {
         if (err) {
@@ -137,46 +141,41 @@ function scan() {
 }
 
 function detectChinese(text, path, type, babelType) {
-  if (/[\u4e00-\u9fa5]/.test(text)) {
-    report(text, path, type, babelType);
+  if (!/[\u4e00-\u9fa5]/.test(text)) {
+    // 如果不是中文则不进行处理
+    return;
   }
-}
 
-function report(text, path, type, babelType) {
-  const { node } = path;
-  const startLine = node.loc ? node.loc.start.line : "NOT_FOUND";
-  const startColumn = node.loc ? node.loc.start.column : "NOT_FOUND";
-  const location = `${path.hub.file.opts.filename}#${startLine}#${startColumn}`;
+  const { node, hub } = path;
+  const startLine = node.loc?.start?.line ?? "NOT_FOUND";
+  const startColumn = node.loc?.start?.column ?? "NOT_FOUND";
+  const location = `${hub.file.opts.filename}#${startLine}#${startColumn}`;
 
+  // FIXME:
   let zhText = text.replace(/"/g, '\\"');
   zhText = type === "jsx" ? zhText.trim() : zhText;
-
   const sourceText = `${zhText}#${location}`;
-  const notExist = textArr.indexOf(`${sourceText}`) === -1;
 
-  if (notExist) {
-    // 没有扫描过
+  const hasScanned = sourceTextList.indexOf(`${sourceText}`) !== -1;
+  if (hasScanned) {
+    // 已扫描过
+    return;
+  }
 
-    textArr.push(sourceText);
+  sourceTextList.push(sourceText);
+
+  if (zhCH.has(zhText)) {
     // 中文文案已存在
-    if (zhCH.has(zhText)) {
-      const data = zhCH.get(zhText);
-      data.source.push({ type, location, babelType });
-      zhCH.set(zhText, data);
-    } else {
-      // 中文文案不存在
-      zhCH.set(zhText, {
-        id: zhText,
-        defaultMessage: zhText,
-        source: [
-          {
-            type,
-            location,
-            babelType,
-          },
-        ],
-      });
-    }
+    const data = zhCH.get(zhText);
+    data.source.push({ type, location, babelType });
+    zhCH.set(zhText, data);
+  } else {
+    // 中文文案不存在
+    zhCH.set(zhText, {
+      id: zhText,
+      defaultMessage: zhText,
+      source: [{ type, location, babelType }],
+    });
   }
 }
 
