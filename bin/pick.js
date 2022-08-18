@@ -2,7 +2,7 @@ const fs = require("fs");
 const program = require("commander");
 const path = require("path");
 const config = require("./config")();
-
+const { logSuccess, logError } = require("./log");
 program.parse(process.argv);
 
 const needImport = [];
@@ -11,24 +11,58 @@ const callStatement = config.callStatement;
 const targetDir = config.targetDir;
 const sourceMapPath = path.join(process.cwd(), targetDir, "zh-CH.json");
 
-function replace(text, chinese, replaceString) {
-  let textArr = text.split(/intl\.get\(.+?\)/);
-  const newArr = JSON.parse(JSON.stringify(textArr));
-  textArr.forEach((item, index, arr) => {
-    arr[index] = item.replace(chinese, replaceString);
+function pick() {
+  let data = null;
+  try {
+    data = require(sourceMapPath);
+  } catch (e) {
+    logError("获取映射文件出错！", e);
+    return;
+  }
+
+  data.forEach((item) => {
+    item.source.forEach((src) => {
+      const [filename, line, column] = src.location.split("#");
+      const opts = {
+        key: item.id,
+        text: item.defaultMessage,
+        textType: src.type,
+        filename: filename,
+        line: line,
+        column: column,
+      };
+      const flag = generateAndWrite(opts);
+      if (flag) {
+        logSuccess("替换成功，" + opts.text + " => " + opts.key + " #" + src.location);
+      }
+    });
   });
-  newArr.forEach((item, index, arr) => {
-    if (item !== textArr[index]) {
-      text = text.replace(item, textArr[index]);
-    }
+
+  // 这里加上文件头的import
+  needImport.forEach((src) => {
+    fs.readFile(src, "utf8", (err, data) => {
+      if (err) {
+        return logError(err);
+      }
+
+      const result = `${importStatement}\n${data}`;
+      fs.writeFile(src, result, "utf8", (e) => {
+        if (e) {
+          return logError(e);
+        }
+
+        return 1;
+      });
+
+      return 1;
+    });
   });
-  return text;
 }
 
 function generateAndWrite(sourceObj) {
   if (!sourceObj) return;
-  const { key, text, textType, filename, line, column } = sourceObj;
 
+  const { key, text, textType, filename, line, column } = sourceObj;
   const left = textType === "jsx" ? "{" : "";
   const right = textType === "jsx" ? "}" : "";
 
@@ -73,46 +107,18 @@ function generateAndWrite(sourceObj) {
   return 1;
 }
 
-function pick() {
-  let data = null;
-  try {
-    data = require(sourceMapPath);
-  } catch (e) {
-    console.log("获取映射文件出错！", e);
-    return;
-  }
-
-  data.forEach((item) => {
-    item.source.forEach((src) => {
-      const [filename, line, column] = src.location.split("#");
-      const opts = {
-        key: item.id,
-        text: item.defaultMessage,
-        textType: src.type,
-        filename: filename,
-        line: line,
-        column: column,
-      };
-      const flag = generateAndWrite(opts);
-      if (flag) {
-        console.log("替换成功，" + opts.text + " => " + opts.key + " #" + src.location);
-      }
-    });
+function replace(text, chinese, replaceString) {
+  const textArr = text.split(/intl\.get\(.+?\)/);
+  const newArr = JSON.parse(JSON.stringify(textArr));
+  textArr.forEach((item, index, arr) => {
+    arr[index] = item.replace(chinese, replaceString);
   });
-
-  // 这里加上文件头的import
-  needImport.forEach((src) => {
-    fs.readFile(src, "utf8", (err, data) => {
-      if (err) return console.log(err);
-
-      const result = `${importStatement}\n${data}`;
-      fs.writeFile(src, result, "utf8", (e) => {
-        if (e) return console.log(e);
-        return 1;
-      });
-      return 1;
-    });
+  newArr.forEach((item, index, arr) => {
+    if (item !== textArr[index]) {
+      text = text.replace(item, textArr[index]);
+    }
   });
+  return text;
 }
 
 module.exports = pick;
