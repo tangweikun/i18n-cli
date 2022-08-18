@@ -4,7 +4,8 @@ const rimraf = require("rimraf");
 const transformFileSync = require("@babel/core").transformFileSync;
 const config = require("./config")();
 const babelConfig = require("./babelConfig")();
-babelConfig.plugins.push(scan);
+const { logSuccess, logError } = require("./log");
+babelConfig.plugins.push(markChineseText);
 
 const sourceTextList = [];
 const zhCH = new Map();
@@ -40,17 +41,17 @@ function run() {
         sourceTextList.map((item, i) => `${item}#${i}\n`).join(""),
         function (err) {
           if (err) {
-            return console.error(err);
+            return logError(err);
           }
-          console.log(`----共扫描中文文案 ${sourceTextList.length} 条----`);
+          logSuccess(`----共扫描中文文案 ${sourceTextList.length} 条，已记录到 ${targetDir}/sourcemap.txt----`);
         }
       );
 
       fs.appendFile(`${targetDir}/zh-CH.json`, `${JSON.stringify([...zhCH.values()], null, "\t")}`, function (err) {
         if (err) {
-          return console.error(err);
+          return logError(err);
         }
-        console.log(`----去重后中文文案为 ${zhCH.size} 条----`);
+        logSuccess(`----去重后中文文案 ${zhCH.size} 条，已记录到 ${targetDir}/zh-CH.json----`);
       });
 
       // 模板字符串暂不处理，只是找出来
@@ -59,16 +60,16 @@ function run() {
         templateLiteralArr.map((item, i) => `${item}#${i}\n`).join(""),
         function (err) {
           if (err) {
-            return console.error(err);
+            return logError(err);
           }
-          console.log(`----共扫描中文模板字符串 ${templateLiteralArr.length} 条----`);
+          logSuccess(`----共扫描中文模板字符串 ${templateLiteralArr.length} 条----`);
         }
       );
     }
   );
 }
 
-function scan() {
+function markChineseText() {
   return {
     visitor: {
       JSXAttribute(path) {
@@ -122,8 +123,8 @@ function scan() {
       TemplateLiteral(path) {
         path.node.quasis.forEach((x) => {
           const { node } = path;
-          const startLine = node.loc ? node.loc.start.line : "NOT_FOUND";
-          const startColumn = node.loc ? node.loc.start.column : "NOT_FOUND";
+          const startLine = node.loc?.start?.line ?? "NOT_FOUND";
+          const startColumn = node.loc?.start?.column ?? "NOT_FOUND";
           const location = `${path.hub.file.opts.filename}#${startLine}#${startColumn}`;
           const sourceText = `${x.value.raw}#${location}`;
           const notExist = templateLiteralArr.indexOf(`${sourceText}`) === -1;

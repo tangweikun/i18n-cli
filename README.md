@@ -45,4 +45,5 @@ TODO:
 ## TODO
 
 - [ ] babel options support config
-- [ ] 提示信息使用 chalk
+- [x] 提示信息使用 chalk
+- [ ] 节点类型更准确
