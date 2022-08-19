@@ -69,32 +69,23 @@ function generateAndWrite(sourceObj) {
   // 拿到文件数据
   const data = fs.readFileSync(filename, "utf8");
   const arr = data.split("\n");
-
   const temp1 = arr[line - 1];
   const temp2 = arr[line];
-  let chinese = text.replace(/\\"/g, '"');
+  const chinese = text.replace(/\\"/g, '"');
   const replaceString = `${left}${callStatement}('${key}')${right}`;
-  // 这里是为了匹配前后如果有引号的情况
-  arr[line - 1] = replace(arr[line - 1], `"${chinese}"`, replaceString);
+
   if (temp1 === arr[line - 1]) {
-    arr[line - 1] = replace(arr[line - 1], `'${chinese}'`, replaceString);
-    if (temp1 === arr[line - 1]) {
-      arr[line - 1] = replace(arr[line - 1], chinese, replaceString);
-      if (temp1 === arr[line - 1]) {
-        arr[line] = replace(arr[line], `"${chinese}"`, replaceString);
-        if (temp2 === arr[line]) {
-          arr[line] = replace(arr[line], `'${chinese}'`, replaceString);
-          if (temp2 === arr[line]) {
-            arr[line] = replace(arr[line], chinese, replaceString);
-            if (temp2 === arr[line]) {
-              if (arr[line].indexOf(text) !== -1 || arr[line - 1].indexOf(text) !== -1) {
-                console.log("失败，请手动替换", JSON.stringify(sourceObj, null, "\t"));
-                return 0;
-              }
-            }
-          }
-        }
-      }
+    arr[line - 1] = replaceChinese(arr[line - 1], chinese, replaceString);
+  }
+
+  if (temp2 === arr[line]) {
+    arr[line] = replaceChinese(arr[line], chinese, replaceString);
+  }
+
+  if (temp1 === arr[line - 1] && temp2 === arr[line]) {
+    if (arr[line].indexOf(text) !== -1 || arr[line - 1].indexOf(text) !== -1) {
+      logError("失败，请手动替换", JSON.stringify(sourceObj, null, "\t"));
+      return 0;
     }
   }
 
@@ -107,18 +98,30 @@ function generateAndWrite(sourceObj) {
   return 1;
 }
 
-function replace(text, chinese, replaceString) {
+function replaceChinese(text, chinese, replaceString, count = 1) {
+  let res = text;
   const textArr = text.split(/intl\.get\(.+?\)/);
   const newArr = JSON.parse(JSON.stringify(textArr));
+
   textArr.forEach((item, index, arr) => {
     arr[index] = item.replace(chinese, replaceString);
   });
+
   newArr.forEach((item, index, arr) => {
     if (item !== textArr[index]) {
-      text = text.replace(item, textArr[index]);
+      res = res.replace(item, textArr[index]);
     }
   });
-  return text;
+
+  if (count === 1 && res === text) {
+    return replaceChinese(res, `"${chinese}"`, replaceString, 2);
+  }
+
+  if (count === 2 && res === text) {
+    return replaceChinese(res, `'${chinese}'`, replaceString, 3);
+  }
+
+  return res;
 }
 
 module.exports = pick;
