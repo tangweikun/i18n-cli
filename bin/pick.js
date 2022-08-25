@@ -12,7 +12,13 @@ const targetDir = config.targetDir;
 const sourceMapPath = path.join(process.cwd(), targetDir, "zh-CH.json");
 const withImport = config.withImport
 
-function replace(text, chinese, replaceString) {
+function replaceChinese(text, chinese, replaceString, sourceObj) {
+  if (text.includes(callStatement)) {
+    // <Tooltip title="切换为当前环境的正常资源">当前</Tooltip>
+    // console.log("包含已国际化内容，可能失败，请检查", `text -> ${sourceObj.text}`, `filename -> ${sourceObj.filename}`);
+    return text
+  }
+
   let textArr = text.split(/intl\.get\(.+?\)/);
   const newArr = JSON.parse(JSON.stringify(textArr));
   textArr.forEach((item, index, arr) => {
@@ -41,21 +47,24 @@ function generateAndWrite(sourceObj) {
   const temp2 = arr[line];
   let chinese = text.replace(/\\"/g, '"');
   const replaceString = `${left}${callStatement}('${key}')${right}`;
+
   // 这里是为了匹配前后如果有引号的情况
-  arr[line - 1] = replace(arr[line - 1], `"${chinese}"`, replaceString);
+  // 换行情况处理
+  // console.log(arr[line - 1], chinese, callStatement)
+  arr[line - 1] = replaceChinese(arr[line - 1], `"${chinese}"`, replaceString, sourceObj);
   if (temp1 === arr[line - 1]) {
-    arr[line - 1] = replace(arr[line - 1], `'${chinese}'`, replaceString);
+    arr[line - 1] = replaceChinese(arr[line - 1], `'${chinese}'`, replaceString, sourceObj);
     if (temp1 === arr[line - 1]) {
-      arr[line - 1] = replace(arr[line - 1], chinese, replaceString);
+      arr[line - 1] = replaceChinese(arr[line - 1], chinese, replaceString, sourceObj);
       if (temp1 === arr[line - 1]) {
-        arr[line] = replace(arr[line], `"${chinese}"`, replaceString);
+        arr[line] = replaceChinese(arr[line], `"${chinese}"`, replaceString, sourceObj);
         if (temp2 === arr[line]) {
-          arr[line] = replace(arr[line], `'${chinese}'`, replaceString);
+          arr[line] = replaceChinese(arr[line], `'${chinese}'`, replaceString, sourceObj);
           if (temp2 === arr[line]) {
-            arr[line] = replace(arr[line], chinese, replaceString);
+            arr[line] = replaceChinese(arr[line], chinese, replaceString, sourceObj);
             if (temp2 === arr[line]) {
               if (arr[line].indexOf(text) !== -1 || arr[line - 1].indexOf(text) !== -1) {
-                console.log("失败，请手动替换", JSON.stringify(sourceObj, null, "\t"));
+                console.log("失败，请手动替换", `text -> ${sourceObj.text}`, `filename -> ${sourceObj.filename}`);
                 return 0;
               }
             }
@@ -96,7 +105,7 @@ function pick() {
       };
       const flag = generateAndWrite(opts);
       if (flag) {
-        console.log("替换成功，" + opts.text + " => " + opts.key + " #" + src.location);
+        // console.log("替换成功，" + opts.text + " => " + opts.key + " #" + src.location);
       }
     });
   });

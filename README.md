@@ -49,3 +49,14 @@ TODO:
 - [ ] 节点类型更准确
 - [ ] ：: 不使用中文冒号
 - [ ] 一个节点中文案出现重叠的情况，可能会出现重复翻译 【你好】【你好啊】
+
+```jsx
+// 转换前：
+<Tooltip title="切换为当前环境的正常资源">当前</Tooltip>
+
+// 预期：
+<Tooltip title={window.t('切换为当前环境的正常资源')}>{window.t('当前')}</Tooltip>
+
+// 实际：
+<Tooltip title={window.t('切换为{window.t('当前')}环境的正常资源')}>当前</Tooltip>
+```

@@ -73,7 +73,7 @@ export default function Test(props) {
         本地 {/*  JSXElement JSXText */}
       </Tooltip>
 
-      {/* <Tooltip title="切换为当前环境的正常资源">当前</Tooltip> FIXME: */} 
+      <Tooltip title="切换为当前环境的正常资源">当前</Tooltip> {/* FIXME: */}
 
       <Button
           type="primary"
