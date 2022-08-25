@@ -7,6 +7,7 @@ const babelConfig = require("./babelConfig")();
 const { logSuccess, logError } = require("./log");
 babelConfig.plugins.push(markChineseText);
 
+const ignoreTextList = [];
 const sourceTextList = [];
 const zhCH = new Map();
 const templateLiteralArr = [];
@@ -65,6 +66,18 @@ function run() {
           logSuccess(`----共扫描中文模板字符串 ${templateLiteralArr.length} 条----`);
         }
       );
+
+      // 暂不处理，只是找出来
+      fs.appendFile(
+        `${targetDir}/ignoreText.txt`,
+        ignoreTextList.map((item, i) => `${item}#${i}\n`).join(""),
+        function (err) {
+          if (err) {
+            return logError(err);
+          }
+          logSuccess(`----共扫描无法自动处理中文 ${ignoreTextList.length} 条----`);
+        }
+      );
     }
   );
 }
@@ -72,6 +85,9 @@ function run() {
 function markChineseText() {
   return {
     visitor: {
+      VariableDeclarator(path) {
+        detectChinese(path.node.init.value, path, "text", "VariableDeclarator");
+      },
       JSXAttribute(path) {
         if (path.node.name.name !== "defaultMessage" && path.node.value) {
           detectChinese(path.node.value.value, path, "jsx", "JSXAttribute");
@@ -117,6 +133,9 @@ function markChineseText() {
           detectChinese(path.node.test.value, path, "text", "SwitchCase");
         }
       },
+      JSXExpressionContainer(path) {
+        detectChinese(path.node?.expression?.value, path, "text", "JSXExpressionContainer");
+      },
       StringLiteral(path) {
         // TODO:
       },
@@ -156,10 +175,22 @@ function detectChinese(text, path, type, babelType) {
   let zhText = text.replace(/"/g, '\\"');
   zhText = type === "jsx" ? zhText.trim() : zhText;
   const sourceText = `${zhText}#${location}`;
+  const hasEmptyLine = /^(\n|\r)/.test(text) // 是否包含换行符
 
   const hasScanned = sourceTextList.indexOf(`${sourceText}`) !== -1;
   if (hasScanned) {
     // 已扫描过
+    return;
+  }
+
+  // 不处理以 ' " ` 开头的中文
+  if (sourceText.includes("'") || sourceText.includes('"') || sourceText.includes("`")) {
+    ignoreTextList.push(sourceText);
+    return;
+  }
+
+  if (['JSXExpressionContainer', 'VariableDeclarator', 'JSXAttribute', 'ObjectProperty'].includes(babelType)) {
+    ignoreTextList.push(sourceText);
     return;
   }
 
@@ -168,14 +199,14 @@ function detectChinese(text, path, type, babelType) {
   if (zhCH.has(zhText)) {
     // 中文文案已存在
     const data = zhCH.get(zhText);
-    data.source.push({ type, location, babelType });
+    data.source.push({ type, location, babelType, hasEmptyLine });
     zhCH.set(zhText, data);
   } else {
     // 中文文案不存在
     zhCH.set(zhText, {
       id: zhText,
       defaultMessage: zhText,
-      source: [{ type, location, babelType }],
+      source: [{ type, location, babelType, hasEmptyLine }],
     });
   }
 }

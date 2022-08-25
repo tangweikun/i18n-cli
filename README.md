@@ -47,3 +47,4 @@ TODO:
 - [ ] babel options support config
 - [x] 提示信息使用 chalk
 - [ ] 节点类型更准确
+- [ ] ：: 不使用中文冒号

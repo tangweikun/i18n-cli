@@ -27,6 +27,7 @@ function pick() {
         key: item.id,
         text: item.defaultMessage,
         textType: src.type,
+        babelType: src.babelType,
         filename: filename,
         line: line,
         column: column,
@@ -62,7 +63,7 @@ function pick() {
 function generateAndWrite(sourceObj) {
   if (!sourceObj) return;
 
-  const { key, text, textType, filename, line, column } = sourceObj;
+  const { key, text, textType, filename, line, babelType, column } = sourceObj;
   const left = textType === "jsx" ? "{" : "";
   const right = textType === "jsx" ? "}" : "";
 
