@@ -86,7 +86,7 @@ function markChineseText() {
   return {
     visitor: {
       VariableDeclarator(path) {
-        // TODO:
+        detectChinese(path.node.init.value, path, "text", "VariableDeclarator");
       },
       JSXAttribute(path) {
         if (path.node.name.name !== "defaultMessage" && path.node.value) {
