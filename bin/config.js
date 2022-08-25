@@ -2,7 +2,8 @@ const path = require("path");
 
 const _config = {
   importStatement: "import { I18N } from '@common/I18N';",
-  callStatement: "I18N.get",
+  withImport: false,
+  callStatement: "window.t",
   targetDir: "i18n-messages",
   exclude: [],
   callExpression: false,

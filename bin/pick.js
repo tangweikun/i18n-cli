@@ -10,6 +10,7 @@ const importStatement = config.importStatement;
 const callStatement = config.callStatement;
 const targetDir = config.targetDir;
 const sourceMapPath = path.join(process.cwd(), targetDir, "zh-CH.json");
+const withImport = config.withImport
 
 function replace(text, chinese, replaceString) {
   let textArr = text.split(/intl\.get\(.+?\)/);
@@ -101,18 +102,20 @@ function pick() {
   });
 
   // 这里加上文件头的import
-  needImport.forEach((src) => {
-    fs.readFile(src, "utf8", (err, data) => {
-      if (err) return console.log(err);
-
-      const result = `${importStatement}\n${data}`;
-      fs.writeFile(src, result, "utf8", (e) => {
-        if (e) return console.log(e);
+  if (withImport) {
+    needImport.forEach((src) => {
+      fs.readFile(src, "utf8", (err, data) => {
+        if (err) return console.log(err);
+  
+        const result = `${importStatement}\n${data}`;
+        fs.writeFile(src, result, "utf8", (e) => {
+          if (e) return console.log(e);
+          return 1;
+        });
         return 1;
       });
-      return 1;
     });
-  });
+  }
 }
 
 module.exports = pick;
