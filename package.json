@@ -5,6 +5,11 @@
   "bin": {
     "i18n-automatic": "bin/i18n-automatic.js"
   },
+  "scripts": {
+    "test-scan": "node ./bin/i18n-automatic.js scan",
+    "test-pick": "node ./bin/i18n-automatic.js pick",
+    "test-exportJson": "node ./bin/i18n-automatic.js exportJson"
+  },
   "repository": "git@github.com:tangweikun/i18n-cli.git",
   "author": "tangweikun <819573105@qq.com>",
   "license": "MIT",
