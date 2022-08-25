@@ -8,6 +8,7 @@ const { logSuccess, logError } = require("./log");
 babelConfig.plugins.push(markChineseText);
 
 const sourceTextList = [];
+const ignoreTextList = [];
 const zhCH = new Map();
 const templateLiteralArr = [];
 
@@ -65,6 +66,18 @@ function run() {
           logSuccess(`----共扫描中文模板字符串 ${templateLiteralArr.length} 条----`);
         }
       );
+
+      // 暂不处理，只是找出来
+      fs.appendFile(
+        `${targetDir}/ignoreText.txt`,
+        ignoreTextList.map((item, i) => `${item}#${i}\n`).join(""),
+        function (err) {
+          if (err) {
+            return logError(err);
+          }
+          logSuccess(`----共扫描无法自动处理中文 ${ignoreTextList.length} 条----`);
+        }
+      );
     }
   );
 }
@@ -72,6 +85,9 @@ function run() {
 function markChineseText() {
   return {
     visitor: {
+      VariableDeclarator(path) {
+        // TODO:
+      },
       JSXAttribute(path) {
         if (path.node.name.name !== "defaultMessage" && path.node.value) {
           detectChinese(path.node.value.value, path, "jsx", "JSXAttribute");
@@ -160,6 +176,12 @@ function detectChinese(text, path, type, babelType) {
   const hasScanned = sourceTextList.indexOf(`${sourceText}`) !== -1;
   if (hasScanned) {
     // 已扫描过
+    return;
+  }
+
+  // 不处理以 ' " ` 开头的中文
+  if (sourceText.includes("'") || sourceText.includes('"') || sourceText.includes("`")) {
+    ignoreTextList.push(sourceText);
     return;
   }
 

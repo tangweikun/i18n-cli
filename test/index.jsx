@@ -69,11 +69,11 @@ export default function Test(props) {
 
       <Modal title={`13-属性`}></Modal> {/* JSXAttribute JSXExpressionContainer TemplateLiteral */}
 
-      <Tooltip title="切换使用本地资源，请保持本地接口代理地址与当前环境一致"> {/* JSXAttribute StringLiteral */}
+      <Tooltip title="切换使用"> {/* JSXAttribute StringLiteral */}
         本地 {/*  JSXElement JSXText */}
       </Tooltip>
 
-      <Tooltip title="切换为当前环境的正常资源">当前</Tooltip>
+      {/* <Tooltip title="切换为当前环境的正常资源">当前</Tooltip> */} 
 
       <Button
           type="primary"
