@@ -65,7 +65,7 @@ function generateAndWrite(sourceObj) {
             arr[line] = replaceChinese(arr[line], chinese, replaceString, sourceObj);
             if (temp2 === arr[line]) {
               if (arr[line].indexOf(text) !== -1 || arr[line - 1].indexOf(text) !== -1) {
-                logError("失败，请手动替换", `text -> ${sourceObj.text}`, `filename -> ${sourceObj.filename}`);
+                logError("失败，请手动替换", `text -> ${sourceObj.text}`, `filename -> ${sourceObj.filename}:${sourceObj.line}`);
                 return 0;
               }
             }
