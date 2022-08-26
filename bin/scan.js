@@ -10,7 +10,6 @@ babelConfig.plugins.push(markChineseText);
 const sourceTextList = [];
 const ignoreTextList = [];
 const zhCH = new Map();
-const templateLiteralArr = [];
 
 const targetDir = config.targetDir;
 const exclude = config.exclude;
@@ -54,18 +53,6 @@ function run() {
         }
         logSuccess(`----去重后中文文案 ${zhCH.size} 条，已记录到 ${targetDir}/zh-CH.json----`);
       });
-
-      // 模板字符串暂不处理，只是找出来
-      fs.appendFile(
-        `${targetDir}/templateLiteral.txt`,
-        templateLiteralArr.map((item, i) => `${item}#${i}\n`).join(""),
-        function (err) {
-          if (err) {
-            return logError(err);
-          }
-          logSuccess(`----共扫描中文模板字符串 ${templateLiteralArr.length} 条----`);
-        }
-      );
 
       // 暂不处理，只是找出来
       fs.appendFile(
@@ -136,6 +123,18 @@ function markChineseText() {
       StringLiteral(path) {
         // TODO:
       },
+      ConditionalExpression(path) {
+        if (path.node) {
+          const consequent = path.node.consequent;
+          const alternate = path.node.alternate;
+          if (consequent?.type === "StringLiteral") {
+            detectChinese(consequent.value, { node: consequent, hub: path.hub }, "text", "StringLiteral");
+          }
+          if (alternate?.type === "StringLiteral") {
+            detectChinese(alternate.value, { node: alternate, hub: path.hub }, "text", "StringLiteral");
+          }
+        }
+      },
       TemplateLiteral(path) {
         path.node.quasis.forEach((x) => {
           const { node } = path;
@@ -143,18 +142,22 @@ function markChineseText() {
           const startColumn = node.loc?.start?.column ?? "NOT_FOUND";
           const location = `${path.hub.file.opts.filename}#${startLine}#${startColumn}`;
           const sourceText = `${x.value.raw}#${location}`;
-          const notExist = templateLiteralArr.indexOf(`${sourceText}`) === -1;
+          const notExist = ignoreTextList.indexOf(`${sourceText}`) === -1;
           const zhText = x.value.raw;
           if (/[\u4e00-\u9fa5]/.test(zhText)) {
             if (notExist) {
               // 没有扫描过
-              templateLiteralArr.push(sourceText);
+              ignoreTextList.push(sourceText);
             }
           }
         });
       },
     },
   };
+}
+
+function isChinese(text) {
+  return /[\u4e00-\u9fa5]/.test(text);
 }
 
 function detectChinese(text, path, type, babelType) {
@@ -176,6 +179,15 @@ function detectChinese(text, path, type, babelType) {
   const hasScanned = sourceTextList.indexOf(`${sourceText}`) !== -1;
   if (hasScanned) {
     // 已扫描过
+    return;
+  }
+
+  if (["StringLiteral"].includes(babelType)) {
+    const notExist = ignoreTextList.indexOf(`${sourceText}`) === -1;
+    if (notExist) {
+      ignoreTextList.push(sourceText);
+    }
+
     return;
   }
 

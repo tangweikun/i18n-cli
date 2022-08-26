@@ -12,6 +12,7 @@ export default function Test(props) {
     icon: require('./img/用户画像.png'), // ObjectProperty CallExpression StringLiteral
     name: '用户画像', // VariableDeclarator ObjectExpression ObjectProperty StringLiteral
     desc: '联通全网易多源数据', // VariableDeclarator ObjectExpression ObjectProperty StringLiteral
+    title: !window.isStraEngine ? '提升游戏的付费指标' : '促进游戏营收增长', // ObjectProperty ConditionalExpression FIXME: 
   };
 
   const [popoList, setPopoList] = useState([
@@ -83,6 +84,10 @@ export default function Test(props) {
         >
           查看
         </Button>
+
+        {
+          window ? <div>你好啊</div> : <div>不好啊</div>
+        }
     </div>
   );
 }
