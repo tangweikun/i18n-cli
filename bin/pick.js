@@ -2,6 +2,7 @@ const fs = require("fs");
 const program = require("commander");
 const path = require("path");
 const config = require("./config")();
+const { logSuccess, logError } = require("./log");
 
 program.parse(process.argv);
 
@@ -50,7 +51,7 @@ function generateAndWrite(sourceObj) {
 
   // 这里是为了匹配前后如果有引号的情况
   // 换行情况处理
-  // console.log(arr[line - 1], chinese, callStatement)
+
   arr[line - 1] = replaceChinese(arr[line - 1], `"${chinese}"`, replaceString, sourceObj);
   if (temp1 === arr[line - 1]) {
     arr[line - 1] = replaceChinese(arr[line - 1], `'${chinese}'`, replaceString, sourceObj);
@@ -64,7 +65,7 @@ function generateAndWrite(sourceObj) {
             arr[line] = replaceChinese(arr[line], chinese, replaceString, sourceObj);
             if (temp2 === arr[line]) {
               if (arr[line].indexOf(text) !== -1 || arr[line - 1].indexOf(text) !== -1) {
-                console.log("失败，请手动替换", `text -> ${sourceObj.text}`, `filename -> ${sourceObj.filename}`);
+                logError("失败，请手动替换", `text -> ${sourceObj.text}`, `filename -> ${sourceObj.filename}`);
                 return 0;
               }
             }
