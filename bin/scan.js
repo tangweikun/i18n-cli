@@ -10,6 +10,7 @@ babelConfig.plugins.push(markChineseText);
 const sourceTextList = [];
 const ignoreTextList = [];
 const zhCH = new Map();
+const ignoreMap = new Map()
 
 const targetDir = config.targetDir;
 const exclude = config.exclude;
@@ -65,6 +66,13 @@ function run() {
           logSuccess(`----共扫描无法自动处理中文 ${ignoreTextList.length} 条----`);
         }
       );
+
+      fs.appendFile(`${targetDir}/ignore.json`, `${JSON.stringify([...ignoreMap.values()], null, "\t")}`, function (err) {
+        if (err) {
+          return logError(err);
+        }
+        logSuccess(`----去重后需手动处理文本 ${ignoreMap.size} 条，已记录到 ${targetDir}/ignore.json----`);
+      });
     }
   );
 }
@@ -127,6 +135,7 @@ function markChineseText() {
         if (path.node) {
           const consequent = path.node.consequent;
           const alternate = path.node.alternate;
+          // JSText的待考虑
           if (consequent?.type === "StringLiteral") {
             detectChinese(consequent.value, { node: consequent, hub: path.hub }, "text", "StringLiteral");
           }
@@ -182,18 +191,27 @@ function detectChinese(text, path, type, babelType) {
     return;
   }
 
-  if (["StringLiteral"].includes(babelType)) {
+  if (["StringLiteral"].includes(babelType) || sourceText.includes("'") || sourceText.includes('"') || sourceText.includes("`")) {
     const notExist = ignoreTextList.indexOf(`${sourceText}`) === -1;
     if (notExist) {
       ignoreTextList.push(sourceText);
+
+      if (ignoreMap.has(zhText)) {
+        // 中文文案已存在
+        const data = ignoreMap.get(zhText);
+        data.source.push({ type, location, babelType });
+        ignoreMap.set(zhText, data);
+      } else {
+        // 中文文案不存在
+        ignoreMap.set(zhText, {
+          id: zhText,
+          defaultMessage: zhText,
+          source: [{ type, location, babelType }],
+        });
+      }
     }
 
-    return;
-  }
 
-  // 不处理以 ' " ` 开头的中文
-  if (sourceText.includes("'") || sourceText.includes('"') || sourceText.includes("`")) {
-    ignoreTextList.push(sourceText);
     return;
   }
 
