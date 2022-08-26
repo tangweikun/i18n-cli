@@ -131,6 +131,18 @@ function markChineseText() {
       StringLiteral(path) {
         // TODO:
       },
+      LogicalExpression(path) {
+        if (path.node) {
+          const left = path.node.left;
+          const right = path.node.right;
+          if (left?.type === "StringLiteral") {
+            detectChinese(left.value, { node: left, hub: path.hub }, "text", "StringLiteral");
+          }
+          if (right?.type === "StringLiteral") {
+            detectChinese(right.value, { node: right, hub: path.hub }, "text", "StringLiteral");
+          }
+        }
+      },
       ConditionalExpression(path) {
         if (path.node) {
           const consequent = path.node.consequent;

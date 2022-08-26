@@ -32,6 +32,7 @@ export default function Test(props) {
   switch (foobar) {
     case "A":
       console.log("A-中文"); // StringLiteral
+      message.success('我不怎么好' || '他真的好')
       break;
     default:
       console.log("DEFAULT-中文"); // StringLiteral
