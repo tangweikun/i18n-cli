@@ -14,6 +14,17 @@ export default function Test(props) {
     desc: '联通全网易多源数据', // VariableDeclarator ObjectExpression ObjectProperty StringLiteral
     title: !window.isStraEngine ? '提升游戏的付费指标' : '促进游戏营收增长', // ObjectProperty ConditionalExpression FIXME: 
     label: ['实时队友推荐', '智能组队匹配', '温暖局推荐', '直播推荐'],
+    render(t) {
+      if (t.profitType === '条件1') {
+        return '消费类直接提升'; // ReturnStatement StringLiteral
+      } else if (t.profitType === '条件2') {
+        return '留存/付费间接提升';
+      } else if (t.profitType === '条件3') {
+        return '体验类利润折算';
+      } else {
+        return null;
+      }
+    },
   };
 
   const [popoList, setPopoList] = useState([

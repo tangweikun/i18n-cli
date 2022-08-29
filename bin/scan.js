@@ -155,6 +155,14 @@ function markChineseText() {
           }
         }
       },
+      ReturnStatement(path) {
+        if (path.node) {
+          const argument = path.node.argument;
+          if (argument?.type === "StringLiteral") {
+            detectChinese(argument.value, { node: argument, hub: path.hub }, "text", "StringLiteral");
+          }
+        }
+      },
       ConditionalExpression(path) {
         if (path.node) {
           const consequent = path.node.consequent;
