@@ -120,7 +120,7 @@ function markChineseText() {
         }
 
         path.node.arguments.forEach((item) => {
-          callExpression && detectChinese(item && item.value, path, "text", "CallExpression");
+          detectChinese(item?.value, path, "text", "CallExpression");
         });
       },
       SwitchCase(path) {
@@ -132,6 +132,18 @@ function markChineseText() {
         // TODO:
       },
       LogicalExpression(path) {
+        if (path.node) {
+          const left = path.node.left;
+          const right = path.node.right;
+          if (left?.type === "StringLiteral") {
+            detectChinese(left.value, { node: left, hub: path.hub }, "text", "StringLiteral");
+          }
+          if (right?.type === "StringLiteral") {
+            detectChinese(right.value, { node: right, hub: path.hub }, "text", "StringLiteral");
+          }
+        }
+      },
+      BinaryExpression(path) {
         if (path.node) {
           const left = path.node.left;
           const right = path.node.right;
