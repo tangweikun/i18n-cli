@@ -10,7 +10,7 @@ babelConfig.plugins.push(markChineseText);
 const sourceTextList = [];
 const ignoreTextList = [];
 const zhCH = new Map();
-const ignoreMap = new Map()
+const ignoreMap = new Map();
 
 const targetDir = config.targetDir;
 const exclude = config.exclude;
@@ -37,6 +37,8 @@ function run() {
       // 创建文件夹
       rimraf.sync(targetDir);
       fs.mkdirSync(targetDir);
+      fs.appendFileSync(`${targetDir}/log.txt`, new Date().toLocaleDateString() + '\n', function() {})
+
       fs.appendFile(
         `${targetDir}/sourcemap.txt`,
         sourceTextList.map((item, i) => `${item}#${i}\n`).join(""),
@@ -45,6 +47,12 @@ function run() {
             return logError(err);
           }
           logSuccess(`----共扫描中文文案 ${sourceTextList.length} 条，已记录到 ${targetDir}/sourcemap.txt----`);
+          fs.writeFile(
+            `${targetDir}/log.txt`,
+            `----共扫描中文文案 ${sourceTextList.length} 条，已记录到 ${targetDir}/sourcemap.txt----\n`,
+            { flag: "a+" },
+            function (err) {}
+          );
         }
       );
 
@@ -53,6 +61,12 @@ function run() {
           return logError(err);
         }
         logSuccess(`----去重后中文文案 ${zhCH.size} 条，已记录到 ${targetDir}/zh-CH.json----`);
+        fs.writeFile(
+          `${targetDir}/log.txt`,
+          `----去重后中文文案 ${zhCH.size} 条，已记录到 ${targetDir}/zh-CH.json----\n`,
+          { flag: "a+" },
+          function (err) {}
+        );
       });
 
       // 暂不处理，只是找出来
@@ -64,15 +78,31 @@ function run() {
             return logError(err);
           }
           logSuccess(`----共扫描无法自动处理中文 ${ignoreTextList.length} 条----`);
+          fs.writeFile(
+            `${targetDir}/log.txt`,
+            `----共扫描无法自动处理中文 ${ignoreTextList.length} 条----\n`,
+            { flag: "a+" },
+            function (err) {}
+          );
         }
       );
 
-      fs.appendFile(`${targetDir}/ignore.json`, `${JSON.stringify([...ignoreMap.values()], null, "\t")}`, function (err) {
-        if (err) {
-          return logError(err);
+      fs.appendFile(
+        `${targetDir}/ignore.json`,
+        `${JSON.stringify([...ignoreMap.values()], null, "\t")}`,
+        function (err) {
+          if (err) {
+            return logError(err);
+          }
+          logSuccess(`----去重后需手动处理文本 ${ignoreMap.size} 条，已记录到 ${targetDir}/ignore.json----`);
+          fs.writeFile(
+            `${targetDir}/log.txt`,
+            `----去重后需手动处理文本 ${ignoreMap.size} 条，已记录到 ${targetDir}/ignore.json----\n`,
+            { flag: "a+" },
+            function (err) {}
+          );
         }
-        logSuccess(`----去重后需手动处理文本 ${ignoreMap.size} 条，已记录到 ${targetDir}/ignore.json----`);
-      });
+      );
     }
   );
 }
@@ -224,7 +254,7 @@ function detectChinese(text, path, type, babelType) {
   }
 
   // ["StringLiteral"].includes(babelType) ||
-  if ( sourceText.includes("'") || sourceText.includes('"') || sourceText.includes("`")) {
+  if (sourceText.includes("'") || sourceText.includes('"') || sourceText.includes("`")) {
     const notExist = ignoreTextList.indexOf(`${sourceText}`) === -1;
     if (notExist) {
       ignoreTextList.push(sourceText);
@@ -243,7 +273,6 @@ function detectChinese(text, path, type, babelType) {
         });
       }
     }
-
 
     return;
   }
