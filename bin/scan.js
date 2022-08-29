@@ -223,7 +223,8 @@ function detectChinese(text, path, type, babelType) {
     return;
   }
 
-  if (["StringLiteral"].includes(babelType) || sourceText.includes("'") || sourceText.includes('"') || sourceText.includes("`")) {
+  // ["StringLiteral"].includes(babelType) ||
+  if ( sourceText.includes("'") || sourceText.includes('"') || sourceText.includes("`")) {
     const notExist = ignoreTextList.indexOf(`${sourceText}`) === -1;
     if (notExist) {
       ignoreTextList.push(sourceText);
