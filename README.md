@@ -50,6 +50,7 @@ TODO:
 - [ ] ：: 不使用中文冒号
 - [ ] 一个节点中文案出现重叠的情况，可能会出现重复翻译 【你好】【你好啊】
 - [ ] i18n.t('common:search by {name}', { name: i18n.t('application') })
+- [ ] https://konklone.io/json/
 
 ```jsx
 // 转换前：

@@ -12,6 +12,7 @@ const callStatement = config.callStatement;
 const targetDir = config.targetDir;
 const sourceMapPath = path.join(process.cwd(), targetDir, "zh-CH.json");
 const withImport = config.withImport
+fs.appendFileSync(`${targetDir}/manual.txt`, new Date().toLocaleDateString() + '\n', function() {})
 
 function replaceChinese(text, chinese, replaceString, sourceObj) {
   if (text.includes(callStatement)) {
@@ -66,6 +67,12 @@ function generateAndWrite(sourceObj) {
             if (temp2 === arr[line]) {
               if (arr[line].indexOf(text) !== -1 || arr[line - 1].indexOf(text) !== -1) {
                 logError("失败，请手动替换", `text -> ${sourceObj.text}`, `filename -> ${sourceObj.filename}:${sourceObj.line}`);
+                fs.writeFile(
+                  `${targetDir}/manual.txt`,
+                  `text -> ${sourceObj.text}, filename -> ${sourceObj.filename}:${sourceObj.line}\n`,
+                  { flag: "a+" },
+                  function (err) {}
+                );
                 return 0;
               }
             }
