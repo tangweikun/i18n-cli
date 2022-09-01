@@ -12,7 +12,6 @@ const callStatement = config.callStatement;
 const targetDir = config.targetDir;
 const sourceMapPath = path.join(process.cwd(), targetDir, "zh-CH.json");
 const withImport = config.withImport
-fs.appendFileSync(`${targetDir}/manual.txt`, new Date().toLocaleDateString() + '\n', function() {})
 
 function replaceChinese(text, chinese, replaceString, sourceObj) {
   if (text.includes(callStatement)) {
@@ -92,6 +91,7 @@ function generateAndWrite(sourceObj) {
 }
 
 function pick() {
+  fs.appendFileSync(`${targetDir}/manual.txt`, new Date().toLocaleDateString() + '\n', function() {})
   let data = null;
   try {
     data = require(sourceMapPath);

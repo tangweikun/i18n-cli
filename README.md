@@ -72,3 +72,11 @@ TODO:
   能力等，为你量身打造的。结果你在游戏中一次也没购买，一定是你手速太快，直接把页面关闭了对吗？
 </div>
 ```
+
+https://csvjson.com/csv2json
+```javascript
+function arr2Obj(arr){
+    const res = {}
+    return arr.reduce((acc, x) => ({ ...acc, [x.id]:x.lang }), {})
+}
+```
