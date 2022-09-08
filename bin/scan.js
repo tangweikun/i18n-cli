@@ -114,8 +114,14 @@ function markChineseText() {
         detectChinese(path.node.init?.value, path, "text", "VariableDeclarator");
       },
       JSXAttribute(path) {
-        if (path.node.name.name !== "defaultMessage" && path.node.value) {
-          detectChinese(path.node.value?.value, path, "jsx", "JSXAttribute");
+        if (path.node) {
+          const type = path.node.value.type
+          if (type === 'JSXExpressionContainer') {
+            detectChinese(path.node.value?.expression?.value, path, "text", "JSXAttribute");
+          }
+          if (type === 'StringLiteral') {
+            detectChinese(path.node.value?.value, path, "jsx", "JSXAttribute");
+          }
         }
       },
       JSXText(path) {
@@ -253,8 +259,12 @@ function detectChinese(text, path, type, babelType) {
     return;
   }
 
-  // ["StringLiteral"].includes(babelType) ||
-  if (sourceText.includes("'") || sourceText.includes('"') || sourceText.includes("`")) {
+  const shouldNotIncludesChars = ["'", '"', "`", 'YYYY', 'MM', 'DD', '.png', '.jpg', '.svg']
+  const shouldNotStartWithChars = ['./', '@/', '/']
+  const hasIncludesIgnoreChars = shouldNotIncludesChars.some(char => sourceText.includes(char))
+  const hasStartWithIgnoreChars = shouldNotStartWithChars.some(char => sourceText.startsWith(char))
+
+  if (hasIncludesIgnoreChars || hasStartWithIgnoreChars) {
     const notExist = ignoreTextList.indexOf(`${sourceText}`) === -1;
     if (notExist) {
       ignoreTextList.push(sourceText);

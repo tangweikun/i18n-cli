@@ -6,10 +6,11 @@ import { Modal } from 'antd';
 export default function Test(props) {
   const foo = "他和你"; // VariableDeclaration VariableDeclarator StringLiteral
   const bar = "我"; // VariableDeclaration VariableDeclarator StringLiteral
-  const foobar = `你好`; // TemplateLiteral FIXME: 
+  const foobar = `你好`; // TemplateLiteral IGNORE:
 
   const leftData = {
-    icon: require('./img/用户画像.png'), // ObjectProperty CallExpression StringLiteral
+    icon: require('./img/用户画像.png'), // ObjectProperty CallExpression StringLiteral IGNORE:
+    icon2: require('assets/home/categoryDetail/活动营销-1.png'), // IGNORE:
     name: '用户画像', // VariableDeclarator ObjectExpression ObjectProperty StringLiteral
     desc: '联通全网易多源数据', // VariableDeclarator ObjectExpression ObjectProperty StringLiteral
     title: !window.isStraEngine ? '提升游戏的付费指标' : '促进游戏营收增长', // ObjectProperty ConditionalExpression FIXME: 
@@ -81,39 +82,41 @@ export default function Test(props) {
     <div className="wrapper">
       <div>1-纯文本</div> {/* JSXElement JSXText */}
 
-      <div>'2-带有单引号的纯文本'</div> {/* JSXElement JSXText FIXME: */}
+      <div>'2-带有单引号的纯文本'</div> {/* JSXElement JSXText IGNORE: */}
 
       <div>{'3-带有单引号的纯文本'}</div> {/* JSXExpressionContainer StringLiteral FIXME: */}
 
-      <div>"4-带有双引号的纯文本"</div> {/* JSXElement JSXText FIXME: */}
+      <div>"4-带有双引号的纯文本"</div> {/* JSXElement JSXText IGNORE: */}
 
       <div>{"5-带有双引号的纯文本"}</div> {/* JSXExpressionContainer StringLiteral FIXME: */}
 
-      <div>`6-带有反引号的纯文本`</div> {/* JSXElement JSXText FIXME: */}
+      <div>`6-带有反引号的纯文本`</div> {/* JSXElement JSXText IGNORE: */}
 
-      <div>{`7-带有反引号的纯文本`}</div> {/* JSXExpressionContainer TemplateLiteral TemplateElement FIXME: */}
+      <div>{`7-带有反引号的纯文本`}</div> {/* JSXExpressionContainer TemplateLiteral TemplateElement IGNORE: */}
 
-      <div>{`${foo}8-变量混合文本`}</div> {/* JSXExpressionContainer TemplateLiteral TemplateElement FIXME: */}
+      <div>{`${foo}8-变量混合文本`}</div> {/* JSXExpressionContainer TemplateLiteral TemplateElement IGNORE: */}
 
-      <div>{`${foo}9-变量混合文本${bar}`}</div> {/* JSXExpressionContainer TemplateLiteral TemplateElement FIXME: */}
+      <div>{`${foo}9-变量混合文本${bar}`}</div> {/* JSXExpressionContainer TemplateLiteral TemplateElement IGNORE: */}
 
       <div>
         10-纯文本单独一行  {/* JSXElement JSXText */}
       </div>
 
       <div>
-        {`11-纯文本单独一行`} {/* JSXExpressionContainer TemplateLiteral TemplateElement FIXME: */}
+        {`11-纯文本单独一行`} {/* JSXExpressionContainer TemplateLiteral TemplateElement IGNORE: */}
       </div>
 
       <Modal title="12-属性"></Modal> {/* JSXAttribute StringLiteral */}
 
-      <Modal title={`13-属性`}></Modal> {/* JSXAttribute JSXExpressionContainer TemplateLiteral FIXME: */}
+      <Modal title={`13-属性`}></Modal> {/* JSXAttribute JSXExpressionContainer TemplateLiteral IGNORE: */}
 
       <Tooltip title="切换使用"> {/* JSXAttribute StringLiteral */}
         本地 {/*  JSXElement JSXText */}
       </Tooltip>
 
       <Tooltip title="切换为当前环境的正常资源">当前</Tooltip> {/* FIXME: */}
+
+      <div>{moment().format('YYYY年MM月DD日')}</div> {/* IGNORE: */}
 
       <Button
           type="primary"
@@ -135,6 +138,10 @@ export default function Test(props) {
             '猪厂赚钱猪厂花，果然是自家人'}
           {totalPayThisYear?.value > 10000 && '原来你是潜藏的氪金大佬，失敬失敬~'}
       </div>
+
+      <Option value={'机器学习平台监控'}>机器学习平台监控</Option>  {/* JSXAttribute JSXExpressionContainer */}
+      <Option value="你好哈哈哈">你好哈哈哈</Option> {/* JSXAttribute StringLiteral */}
+      <Option value={'用户答题时间-answer_time_cost'}>用户答题时间</Option> {/* JSXAttribute JSXExpressionContainer */}
 
       <div>
         你的温暖局胜率是&nbsp;

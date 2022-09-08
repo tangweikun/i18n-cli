@@ -74,9 +74,10 @@ TODO:
 ```
 
 https://csvjson.com/csv2json
+https://retool.com/utilities/convert-csv-to-json
 ```javascript
 function arr2Obj(arr){
     const res = {}
-    return arr.reduce((acc, x) => ({ ...acc, [x.id]:x.lang }), {})
+    return arr.filter(y => y.id).reduce((acc, x) => ({ ...acc, [x.id]: x.lang || x.id }), {})
 }
 ```
