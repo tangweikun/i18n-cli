@@ -140,6 +140,9 @@ export default function Test(props) {
           {totalPayThisYear?.value > 10000 && '原来你是潜藏的氪金大佬，失敬失敬~'}
       </div>
 
+      <div>这有冒号:</div> {/* IGNORE: */}
+      <div>这有点.</div> {/* IGNORE: */}
+
       <Option value={'机器学习平台监控'}>机器学习平台监控</Option>  {/* JSXAttribute JSXExpressionContainer */}
       <Option value="你好哈哈哈">你好哈哈哈</Option> {/* JSXAttribute StringLiteral */}
       <Option value={'用户答题时间-answer_time_cost'}>用户答题时间</Option> {/* JSXAttribute JSXExpressionContainer */}

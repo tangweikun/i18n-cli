@@ -259,10 +259,10 @@ function detectChinese(text, path, type, babelType) {
     return;
   }
 
-  const shouldNotIncludesChars = ["'", '"', "`", 'YYYY', 'MM', 'DD', '.png', '.jpg', '.svg']
+  const shouldNotIncludesChars = ["'", '"', "`", 'YYYY', 'MM', 'DD', '.png', '.jpg', '.svg', '.', ':']
   const shouldNotStartWithChars = ['./', '@/', '/']
-  const hasIncludesIgnoreChars = shouldNotIncludesChars.some(char => sourceText.includes(char))
-  const hasStartWithIgnoreChars = shouldNotStartWithChars.some(char => sourceText.startsWith(char))
+  const hasIncludesIgnoreChars = shouldNotIncludesChars.some(char => zhText.includes(char))
+  const hasStartWithIgnoreChars = shouldNotStartWithChars.some(char => zhText.startsWith(char))
 
   if (hasIncludesIgnoreChars || hasStartWithIgnoreChars) {
     const notExist = ignoreTextList.indexOf(`${sourceText}`) === -1;
