@@ -15,6 +15,7 @@ export default function Test(props) {
     desc: '联通全网易多源数据', // VariableDeclarator ObjectExpression ObjectProperty StringLiteral
     title: !window.isStraEngine ? '提升游戏的付费指标' : '促进游戏营收增长', // ObjectProperty ConditionalExpression FIXME: 
     label: ['实时队友推荐', '智能组队匹配', '温暖局推荐', '直播推荐'],
+    formatter: '{b0}: {c0}人', // FIXME:
     render(t) {
       if (t.profitType === '条件1') {
         return '消费类直接提升'; // ReturnStatement StringLiteral

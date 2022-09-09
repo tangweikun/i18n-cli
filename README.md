@@ -76,8 +76,18 @@ TODO:
 https://csvjson.com/csv2json
 https://retool.com/utilities/convert-csv-to-json
 ```javascript
-function arr2Obj(arr){
+function arr2Obj(arr, lang = 'zh'){
     const res = {}
-    return arr.filter(y => y.id).reduce((acc, x) => ({ ...acc, [x.id]: x.lang || x.id }), {})
+    return arr.filter(y => y.id).reduce((acc, x) => ({ ...acc, [x.id]: x[lang] || x.id }), {})
+}
+```
+
+`foo.bar` 将无法被正确识别
+`hello:world` 将无法被正确识别
+```json
+{
+  "foo": "__foo__",
+  "foo.bar": "__foo__bar__",
+  "hello:world": "__hello__world"
 }
 ```

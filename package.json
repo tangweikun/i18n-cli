@@ -7,6 +7,7 @@
   },
   "scripts": {
     "test-scan": "node ./bin/i18n-automatic.js scan",
+    "transform": "node ./formatter/transform.js",
     "test-pick": "node ./bin/i18n-automatic.js pick",
     "test-exportJson": "node ./bin/i18n-automatic.js exportJson"
   },
