@@ -115,12 +115,12 @@ function markChineseText() {
       },
       JSXAttribute(path) {
         if (path.node) {
-          const type = path.node.value.type
+          const type = path.node?.value?.type
           if (type === 'JSXExpressionContainer') {
-            detectChinese(path.node.value?.expression?.value, path, "text", "JSXAttribute");
+            detectChinese(path.node?.value?.expression?.value, path, "text", "JSXAttribute");
           }
           if (type === 'StringLiteral') {
-            detectChinese(path.node.value?.value, path, "jsx", "JSXAttribute");
+            detectChinese(path.node?.value?.value, path, "jsx", "JSXAttribute");
           }
         }
       },
@@ -128,10 +128,10 @@ function markChineseText() {
         detectChinese(path.node.value, path, "jsx", "JSXText");
       },
       AssignmentExpression(path) {
-        detectChinese(path.node.right.value, path, "text", "AssignmentExpression");
+        detectChinese(path.node.right?.value, path, "text", "AssignmentExpression");
       },
       ObjectProperty(path) {
-        detectChinese(path.node.value.value, path, "text", "ObjectProperty");
+        detectChinese(path.node.value?.value, path, "text", "ObjectProperty");
       },
       ArrayExpression(path) {
         path.node.elements.forEach((item) => {
