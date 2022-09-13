@@ -91,3 +91,9 @@ function arr2Obj(arr, lang = 'zh'){
   "hello:world": "__hello__world"
 }
 ```
+
+```javascript
+JSON.stringify('\n')
+
+// '\\n'
+```
